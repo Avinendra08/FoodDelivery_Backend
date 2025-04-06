@@ -11,7 +11,9 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 //import routes
+import restaurantRoutes from "./restaurant_service/routes/restaurant.routes.js"
 
 //use routes
+app.use("/api/restaurants" , restaurantRoutes);
 
 export { app }

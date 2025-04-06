@@ -8,16 +8,12 @@ const foodSchema = new Schema(
     },
     foodType: {
       type: String,
-      enum: ["Veg", "NonVeg", "Vegan"],
+      enum: ["veg", "nonveg", "vegan"],
       required: true,
     },
     foodCuisine: {
       type: String,
-      enum: ["North Indian", "South Indian", "Indian", "Chinese", "Italian"],
-      required: true,
-    },
-    imageUrl: {
-      type: String,
+      enum: ["north_indian", "south_indian", "chinese", "italian"],
       required: true,
     },
     price: {
@@ -25,13 +21,18 @@ const foodSchema = new Schema(
       required: true,
       min: 1,
     },
+    imageUrl: {
+      type: String,
+      required: false,
+    },
     inStock: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     description: {
       type: String,
       default: "",
+      required: false,
     },
   },
   { timestamps: true }
@@ -39,18 +40,25 @@ const foodSchema = new Schema(
 
 const restaurantSchema = new Schema(
   {
-    reataurantName: {
+    restaurantName: {
       type: String,
       required: true,
       trim: true,
     },
-    address: {
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    phoneNumber: {
       type: String,
       required: true,
+      match: /^[0-9]{10}$/,
     },
     isAvailable: {
       type: Boolean,
       default: true,
+    },
+    availableHours: {
+      start: { type: Number, min: 0, max: 23, required: true },
+      end: { type: Number, min: 0, max: 23, required: true },
     },
     menu: [foodSchema],
     rating: { type: Number, default: 0 },
