@@ -147,28 +147,6 @@ export const addFoodToMenu = asyncHandler(async (req, res) => {
   });
 });
 
-//get restaurants available at current time
-export const getAvailableRestaurants = asyncHandler(async (req, res) => {
-  const { city } = req.query;
-  if (!city) {
-    res.status(400);
-    throw new Error("City is required");
-  }
-  const currentHour = new Date().getHours();
-
-  const restaurants = await Restaurant.find({
-    isAvailable: true,
-    city: city.trim().toLowerCase(),
-    "availableHours.start": { $lte: currentHour },
-    "availableHours.end": { $gt: currentHour },
-  });
-
-  res.status(200).json({
-    total: restaurants.length,
-    restaurants,
-  });
-});
-
 //update food items in bulk - (RESTAURENT MICROSERVICE TASK 1)
 export const updateMenuItems = asyncHandler(async (req, res) => {
   const { id } = req.params;
