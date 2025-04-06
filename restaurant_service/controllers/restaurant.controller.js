@@ -169,7 +169,7 @@ export const getAvailableRestaurants = asyncHandler(async (req, res) => {
   });
 });
 
-//update food items in bulk
+//update food items in bulk - (RESTAURENT MICROSERVICE TASK 1)
 export const updateMenuItems = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const updates = req.body; //array of objects of food items to be updated
@@ -225,6 +225,7 @@ export const updateMenuItems = asyncHandler(async (req, res) => {
   });
 });
 
+//change availability status - (RESTAURENT MICROSERVICE TASK 1)
 export const toggleRestaurantAvailability = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
