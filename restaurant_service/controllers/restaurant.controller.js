@@ -35,7 +35,9 @@ export const addRestaurant = asyncHandler(async (req, res) => {
 
   if (existingRestaurant) {
     res.status(400);
-    throw new Error("Restaurant already exists in this city with the provided name or phone number.");
+    throw new Error(
+      "Restaurant already exists in this city with the provided name or phone number."
+    );
   }
 
   let menuArray = [];
@@ -91,7 +93,15 @@ export const addFoodToMenu = asyncHandler(async (req, res) => {
   const skippedItems = [];
 
   foodItems.forEach((item, idx) => {
-    const {foodName,foodType,foodCuisine,price,imageUrl = "",inStock = true,description = "",} = item;
+    const {
+      foodName,
+      foodType,
+      foodCuisine,
+      price,
+      imageUrl = "",
+      inStock = true,
+      description = "",
+    } = item;
 
     if (!foodName || !foodType || !foodCuisine || !price) {
       throw new Error(
@@ -156,5 +166,79 @@ export const getAvailableRestaurants = asyncHandler(async (req, res) => {
   res.status(200).json({
     total: restaurants.length,
     restaurants,
+  });
+});
+
+//update food items in bulk
+export const updateMenuItems = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body; //array of objects of food items to be updated
+
+  if (!Array.isArray(updates) || updates.length === 0) {
+    res.status(400);
+    throw new Error("Provide an array of food items to update");
+  }
+
+  const restaurant = await Restaurant.findById(id);
+  if (!restaurant) {
+    res.status(404);
+    throw new Error("Restaurant not found");
+  }
+
+  const updatedItems = [];
+  const skippedItems = [];
+
+  updates.forEach((updateItem) => {
+    const { foodName, price, inStock, description } = updateItem;
+
+    if (!foodName) {
+      skippedItems.push({ reason: "Missing foodName", item: updateItem });
+      return;
+    }
+
+    const index = restaurant.menu.findIndex(
+      (item) =>
+        item.foodName.trim().toLowerCase() === foodName.trim().toLowerCase()
+    );
+
+    if (index === -1) {
+      skippedItems.push({ reason: "Food not found", item: foodName });
+      return;
+    }
+
+    if (price !== undefined) restaurant.menu[index].price = price;
+    if (inStock !== undefined) restaurant.menu[index].inStock = inStock;
+    if (description !== undefined)
+      restaurant.menu[index].description = description;
+
+    updatedItems.push(restaurant.menu[index]);
+  });
+
+  await restaurant.save();
+
+  res.status(200).json({
+    message: "Menu update completed",
+    updatedCount: updatedItems.length,
+    skippedCount: skippedItems.length,
+    updatedItems,
+    skippedItems,
+  });
+});
+
+export const toggleRestaurantAvailability = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const restaurant = await Restaurant.findById(id);
+  if (!restaurant) {
+    res.status(404);
+    throw new Error("Restaurant not found");
+  }
+
+  restaurant.isAvailable = !restaurant.isAvailable;
+  await restaurant.save();
+
+  res.status(200).json({
+    message: `Restaurant availability toggled to ${restaurant.isAvailable}`,
+    isAvailable: restaurant.isAvailable,
   });
 });

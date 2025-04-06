@@ -51,6 +51,7 @@ const restaurantSchema = new Schema(
       type: String,
       required: true,
       match: /^[0-9]{10}$/,
+      unique: true 
     },
     isAvailable: {
       type: Boolean,
