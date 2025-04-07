@@ -13,9 +13,11 @@ app.use(cookieParser())
 //import routes
 import restaurantRoutes from "./restaurant_service/routes/restaurant.routes.js";
 import userRoutes from "./user_service/routes/user.routes.js";
+import deliveryRoutes from "./delivery_service/routes/deliveryAgent.routes.js"
 
 //use routes
 app.use("/api/restaurants" , restaurantRoutes);
 app.use("/api/users",userRoutes);
+app.use("/api/delivery",deliveryRoutes);
 
 export { app }
