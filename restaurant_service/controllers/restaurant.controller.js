@@ -3,7 +3,7 @@ import { Restaurant } from "../models/restaurant.model.js";
 import { Order } from "../../user_service/models/order.model.js";
 import { DeliveryAgent } from "../../delivery_service/models/deliveryAgent.model.js";
 
-//create restaurant
+//create restaurant with menu items
 export const addRestaurant = asyncHandler(async (req, res) => {
   const {
     restaurantName,
@@ -71,7 +71,7 @@ export const addRestaurant = asyncHandler(async (req, res) => {
     .json({ message: "Restaurant created", restaurant: savedRestaurant });
 });
 
-//add foods to existing menu of a restaurant in bulk
+//add foods to existing menu of a restaurant in bulk or single
 export const addFoodToMenu = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const foodItems = req.body;
@@ -149,7 +149,8 @@ export const addFoodToMenu = asyncHandler(async (req, res) => {
   });
 });
 
-//update food items in bulk - (RESTAURENT MICROSERVICE TASK 1)
+//ASSIGNMENT TASK
+//update food items in bulk 
 export const updateMenuItems = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const updates = req.body; //array of objects of food items to be updated
@@ -205,7 +206,8 @@ export const updateMenuItems = asyncHandler(async (req, res) => {
   });
 });
 
-//change availability status - (RESTAURENT MICROSERVICE TASK 1)
+//ASSIGNMENT TASK
+//change availability status of restaurant
 export const toggleRestaurantAvailability = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -224,7 +226,8 @@ export const toggleRestaurantAvailability = asyncHandler(async (req, res) => {
   });
 });
 
-//Accept or Reject Order and assign delivery agent
+//ASSIGNMENT TASK
+//Accept or Reject Order, assign delivery agent and mark order status as processing and delivery agent status as unavailable
 export const handleOrder = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
   console.log(orderId);

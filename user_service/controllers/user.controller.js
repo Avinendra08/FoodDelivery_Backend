@@ -3,7 +3,8 @@ import { Order } from "../models/order.model.js";
 import { Restaurant } from "../../restaurant_service/models/restaurant.model.js";
 import { DeliveryAgent } from "../../delivery_service/models/deliveryAgent.model.js";
 
-//get restaurants available at current time
+//ASSIGNMENT TASK
+//get restaurants available at current time and in given city
 export const getAvailableRestaurants = asyncHandler(async (req, res) => {
   const { city } = req.query;
   if (!city) {
@@ -33,7 +34,8 @@ export const getAvailableRestaurants = asyncHandler(async (req, res) => {
   });
 });
 
-//place orderfrom the available restaurant
+//ASSIGNMENT TASK
+//place order from the available restaurant and mark order status as placed
 export const placeOrder = asyncHandler(async (req, res) => {
   const { restaurantId, items } = req.body;
   const userId = req.user.id;
@@ -86,6 +88,7 @@ export const placeOrder = asyncHandler(async (req, res) => {
   });
 });
 
+//get all orders by user id
 export const getAllOrdersByUserId = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const orders = await Order.find({
@@ -100,7 +103,8 @@ export const getAllOrdersByUserId = asyncHandler(async (req, res) => {
   });
 });
 
-
+//ASSIGNMENT TASK
+//rate order after delivery and update restaurant and delivery agent ratings
 export const rateOrder = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const {orderId} = req.params;
@@ -127,10 +131,10 @@ export const rateOrder = asyncHandler(async (req, res) => {
     throw new Error("You can only rate delivered orders");
   }
 
-  // if (order.restaurantRating || order.deliveryRating) {
-  //   res.status(400);
-  //   throw new Error("Order already rated");
-  // }
+  if (order.restaurantRating || order.deliveryRating) {
+    res.status(400);
+    throw new Error("Order already rated");
+  }
 
   order.restaurantRating = restaurantRating;
   order.deliveryRating = deliveryRating;

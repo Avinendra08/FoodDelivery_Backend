@@ -2,6 +2,7 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { DeliveryAgent } from "../models/deliveryAgent.model.js";
 import { Order } from "../../user_service/models/order.model.js";
 
+//create delivery agent
 export const createDeliveryAgent = asyncHandler(async (req, res) => {
   const { name, phoneNumber, gender } = req.body;
 
@@ -21,12 +22,14 @@ export const createDeliveryAgent = asyncHandler(async (req, res) => {
   res.status(201).json({ message: "Agent created", agent });
 });
 
+//get delivery agents with status as available
 export const getAvailableDeliveryAgents = asyncHandler(async (req, res) => {
   const agents = await DeliveryAgent.find({ status: "available" });
   res.status(200).json({ total: agents.length, agents });
 });
 
-//Update delivery status (Order Delivered) - ASSIGNMENT TASK
+//ASSIGNMENT TASK
+//Update delivery status (Order Delivered) and mark delivery agent status as available
 export const handleOrderDelivery = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
 
@@ -64,6 +67,7 @@ export const handleOrderDelivery = asyncHandler(async (req, res) => {
   });
 });
 
+//change availability of delivery agent
 export const toggleDeliveryAgentAvailability = asyncHandler(
   async (req, res) => {
     const { id } = req.params;
