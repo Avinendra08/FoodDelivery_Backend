@@ -5,6 +5,7 @@ import {
   getAllOrdersByUserId,
   getAvailableRestaurants,
   placeOrder,
+  rateOrder,
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.post("/login", loginUser);
 //user routes
 router.get("/getAllRestaurants", verifyJWT, getAvailableRestaurants);
 router.post("/placeOrder", verifyJWT, placeOrder);
-router.get("/getAllOrdersByUserId",verifyJWT,getAllOrdersByUserId);
+router.get("/getAllOrdersByUserId", verifyJWT, getAllOrdersByUserId);
+router.patch("/rateorder/:orderId", verifyJWT, rateOrder);
 
 export default router;

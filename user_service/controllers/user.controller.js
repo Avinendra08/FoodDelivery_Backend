@@ -1,7 +1,7 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { Order } from "../models/order.model.js";
 import { Restaurant } from "../../restaurant_service/models/restaurant.model.js";
-//import { DeliveryAgent } from "../../delivery_service/models/deliveryAgent.model.js";
+import { DeliveryAgent } from "../../delivery_service/models/deliveryAgent.model.js";
 
 //get restaurants available at current time
 export const getAvailableRestaurants = asyncHandler(async (req, res) => {
@@ -97,5 +97,71 @@ export const getAllOrdersByUserId = asyncHandler(async (req, res) => {
   }
   res.status(201).json({
     orders: orders,
+  });
+});
+
+
+export const rateOrder = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const {orderId} = req.params;
+  const { restaurantRating, deliveryRating } = req.body;
+
+  if (!orderId || !restaurantRating || !deliveryRating) {
+    res.status(400);
+    throw new Error("Order ID, restaurantRating, and deliveryRating are required");
+  }
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  if (order.userId.toString() !== userId.toString()) {
+    res.status(400);
+    throw new Error("You are not authorized to rate this order");
+  }
+
+  if (order.status !== "delivered") {
+    res.status(400);
+    throw new Error("You can only rate delivered orders");
+  }
+
+  // if (order.restaurantRating || order.deliveryRating) {
+  //   res.status(400);
+  //   throw new Error("Order already rated");
+  // }
+
+  order.restaurantRating = restaurantRating;
+  order.deliveryRating = deliveryRating;
+  await order.save();
+
+  //updating the restaurant model
+  const restaurant = await Restaurant.findById(order.restaurantId);
+  if (restaurant) {
+    const newCount = restaurant.ratingCount + 1;
+    const newAvg =
+      ((restaurant.rating * restaurant.ratingCount) + restaurantRating) / newCount;
+
+    restaurant.rating = newAvg;
+    restaurant.ratingCount = newCount;
+    await restaurant.save();
+  }
+
+  //Updating delivery agent rating in model
+  const agent = await DeliveryAgent.findById(order.deliveryAgentId);
+  if (agent) {
+    const newCount = agent.ratingCount + 1;
+    const newAvg =
+      ((agent.rating * agent.ratingCount) + deliveryRating) / newCount;
+
+    agent.rating = newAvg;
+    agent.ratingCount = newCount;
+    await agent.save();
+  }
+
+  res.status(200).json({
+    message: "Thank you for your feedback!",
+    updatedOrder: order,
   });
 });
