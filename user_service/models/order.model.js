@@ -13,7 +13,7 @@ const orderSchema = new Schema({
   totalAmount: Number,
   status: {
     type: String,
-    enum: ["placed", "accepted", "rejected", "processing", "delivered"],
+    enum: ["placed", "rejected", "processing", "delivered"],
     default: "placed",
   },
   deliveryAgentId: { type: Schema.Types.ObjectId, ref: "DeliveryAgent" },

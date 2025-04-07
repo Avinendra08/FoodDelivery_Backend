@@ -26,7 +26,43 @@ export const getAvailableDeliveryAgents = asyncHandler(async (req, res) => {
   res.status(200).json({ total: agents.length, agents });
 });
 
+//Update delivery status (Order Delivered) - ASSIGNMENT TASK
+export const handleOrderDelivery = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
 
+  const order = await Order.findById(orderId);
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  if(order.status === "delivered"){
+    return res.status(200).json({message:"order already delivered"});
+  }
+  if (order.status !== "processing") {
+    res.status(400);
+    throw new Error("Order must be in processing state to delivered");
+  }
+
+  if (!order.deliveryAgentId) {
+    res.status(400);
+    throw new Error("No delivery agent assigned");
+  }
+  order.status = "delivered";
+  await order.save();
+
+  const deliveryAgent = await DeliveryAgent.findByIdAndUpdate(
+    order.deliveryAgentId,
+    { status: "available" },
+    { new: true }
+  );
+
+
+  res.status(200).json({
+    message: `Order delivered by delivery agent: ${deliveryAgent?.name}`,
+    order,
+  });
+});
 
 export const toggleDeliveryAgentAvailability = asyncHandler(
   async (req, res) => {

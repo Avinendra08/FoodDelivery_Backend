@@ -1,5 +1,7 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { Restaurant } from "../models/restaurant.model.js";
+import { Order } from "../../user_service/models/order.model.js";
+import { DeliveryAgent } from "../../delivery_service/models/deliveryAgent.model.js";
 
 //create restaurant
 export const addRestaurant = asyncHandler(async (req, res) => {
@@ -219,5 +221,52 @@ export const toggleRestaurantAvailability = asyncHandler(async (req, res) => {
   res.status(200).json({
     message: `Restaurant availability toggled to ${restaurant.isAvailable}`,
     isAvailable: restaurant.isAvailable,
+  });
+});
+
+//Accept or Reject Order and assign delivery agent
+export const handleOrder = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  console.log(orderId);
+  
+  const { decision } = req.body; //"accept" or "reject"
+
+  const order = await Order.findOne({ _id:orderId });
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  if (order.status !== "placed") {
+    res.status(400);
+    throw new Error("Order has already been processed");
+  }
+
+  if (decision === "reject") {
+    order.status = "rejected";
+    await order.save();
+    return res.status(200).json({ message: "Order rejected" });
+  }
+
+  //logic : Assign delivery agent
+  const availableAgent = await DeliveryAgent.findOne({ status: "available" });
+  if (!availableAgent) {
+    res.status(503);
+    throw new Error("No delivery agents available");
+  }
+  order.status = "processing";
+  order.deliveryAgentId = availableAgent._id;
+  await order.save();
+
+  availableAgent.status = "unavailable";
+  await availableAgent.save();
+
+  res.status(200).json({
+    message: "Order accepted and delivery agent assigned",
+    agent: {
+      id: availableAgent._id,
+      name: availableAgent.name,
+      phoneNumber: availableAgent.phoneNumber,
+    },
   });
 });

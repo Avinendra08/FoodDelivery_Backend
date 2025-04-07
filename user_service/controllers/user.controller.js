@@ -85,3 +85,17 @@ export const placeOrder = asyncHandler(async (req, res) => {
     order,
   });
 });
+
+export const getAllOrdersByUserId = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const orders = await Order.find({
+    userId:  userId ,
+  });
+  if (!orders) {
+    res.status(400);
+    throw new Error("Error fetching orders");
+  }
+  res.status(201).json({
+    orders: orders,
+  });
+});
