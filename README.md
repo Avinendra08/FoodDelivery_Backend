@@ -238,3 +238,62 @@ You can use any of the below for testing by just attaching endpoints as the end:
     Description: Update delivery status of a given order (delivered).
 
     Request : Status value in request body.
+
+## API Testing Flow (End-to-End)
+
+Follow this sequence to test the complete order workflow:
+
+---
+
+### **Step 1: Create a Restaurant**  
+**Endpoint:** `POST /restaurants/addRestaurant`  
+**Purpose:** Register a new restaurant.
+
+---
+
+### **Step 2: Add Food Items to Restaurant's existing menu(optional)**  
+**Endpoint:** `POST /restaurants/addFoods/:restaurantId`  
+**Purpose:** Add food items to the menu for the restaurant.
+
+---
+
+### **Step 3: Register a User**  
+**Endpoint:** `POST /users/register`  
+**Purpose:** Register a new user who will place orders.
+
+---
+
+### **Step 4: Create a Delivery Agent**  
+**Endpoint:** `POST /delivery/createDeliveryAgent`  
+**Purpose:** Create a delivery agent (initially available).
+
+---
+
+### **Step 5: Place an Order**  
+**Endpoint:** `POST /users/placeOrder`  
+**Auth:** Required (JWT)  
+**Purpose:** Place an order with restaurant and food selections.
+
+---
+
+### **Step 6: Accept or Reject the Order**  
+**Endpoint:** `PATCH /restaurants/handleOrder/:orderId`  
+**Purpose:** Restaurant accepts the order and it auto-assigns an available delivery agent.
+
+---
+
+### **Step 7: Mark Order as Delivered**  
+**Endpoint:** `PATCH /delivery/handleOrderDelivery/:orderId`  
+**Purpose:** Update delivery status to `"delivered"` once completed and make delivery agent available again.
+
+---
+
+### **Step 8: Change Delivery agent's availability status**  
+**Endpoint:** `PATCH /delivery/toggleDeliveryAgentAvailability/:agentId`  
+
+---
+
+### **Step 9: Rate the Order**  
+**Endpoint:** `PATCH /users/rateorder/:orderId`  
+**Auth:** Required (JWT)  
+**Purpose:** User rates the order, restaurant, and delivery agent. *(Order must be marked as "delivered")*
